@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+    background-color: #F8FAF9;
+    color: #0F172A;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+  }
+
+  /* Prevent 300ms tap delay and double tap zoom on interactive elements */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+}
+
+.font-arabic {
+  font-family: 'Scheherazade New', 'Amiri', serif;
+  line-height: 1.9;
+}
+
+.font-arabic-display {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  line-height: 1.75;
+}
+
+.font-bengali {
+  font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom subtle scrollbars for horizontal date/surah selectors */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe area support for notch and home bar */
+.pb-safe {
+  padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.bottom-safe {
+  bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

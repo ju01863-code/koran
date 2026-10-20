@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>আরবি সহজ — আরবি ও কুরআনের অর্থ শিক্ষা</title>
+    <meta name="description" content="বাংলাভাষী সব বয়সের মানুষের জন্য সহজে আরবি বর্ণমালা, কুরআনের ৩০০ উচ্চ-ফ্রিকোয়েন্সি শব্দ, শব্দের মূল, সহজ ব্যাকরণ এবং শব্দে শব্দে কুরআন শেখার ইন্টারঅ্যাক্টিভ ওয়েব অ্যাপ।" />
+    
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="theme-color" content="#064E3B" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="আরবি সহজ" />
+    <meta name="application-name" content="আরবি সহজ" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Open Graph & Twitter -->
+    <meta property="og:title" content="আরবি সহজ — আরবি ও কুরআনের অর্থ শিক্ষা" />
+    <meta property="og:description" content="বাংলাভাষী সব বয়সের মানুষের জন্য সহজে আরবি বর্ণমালা, কুরআনের ৩০০ উচ্চ-ফ্রিকোয়েন্সি শব্দ, শব্দের মূল, সহজ ব্যাকরণ এবং শব্দে শব্দে কুরআন শেখার ইন্টারঅ্যাক্টিভ ওয়েব অ্যাপ।" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Icons & Manifest -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Hind+Siliguri:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-[#F8FAF9] text-slate-900 antialiased selection:bg-emerald-700 selection:text-white overscroll-y-none">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Register Service Worker if supported and trigger immediate update
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then((reg) => {
+            reg.update();
+          }).catch((err) => {
+            console.log('SW registration note:', err?.message);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
