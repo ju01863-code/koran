@@ -24,12 +24,15 @@ import {
   Check,
   HeartHandshake,
   PenTool,
+  Brain,
 } from 'lucide-react';
 import { PRACTICE_SURAHS, SurahData, SurahAyah } from '../data/surahData';
 import { ALL_114_SURAHS, SurahMetadata, OFFLINE_CURATED_NUMBERS } from '../data/allSurahsMetadata';
 import { HIGH_FREQUENCY_WORDS, QuranWord } from '../data/wordsData';
 import { speakArabic, stopSpeaking, toBnNum } from '../utils/speech';
 import { loadSurah, getSurahSync, isSurahCached, getSurahMetadata } from '../services/quranService';
+import { QuranQuizSection } from './QuranQuizSection';
+import { WordSRSState } from '../utils/storage';
 
 interface QuranPracticeViewProps {
   practicedAyahKeys: string[];
@@ -43,6 +46,8 @@ interface QuranPracticeViewProps {
   onToggleFavoriteWord?: (wordId: number) => void;
   onNavigateTab?: (tab: string) => void;
   initialSurahNumber?: number | null;
+  wordSRS?: Record<number, WordSRSState>;
+  onRateWord?: (wordId: number, rating: 'again' | 'good' | 'easy') => void;
 }
 
 type SurahFilterCategory = 'all' | 'curated' | 'juz_amma' | 'popular' | 'makki' | 'madani';
@@ -65,6 +70,8 @@ export const QuranPracticeView: React.FC<QuranPracticeViewProps> = ({
   onToggleFavoriteWord,
   onNavigateTab,
   initialSurahNumber,
+  wordSRS = {},
+  onRateWord,
 }) => {
   // Currently selected Surah number (1 to 114)
   const [selectedSurahNumber, setSelectedSurahNumber] = useState<number>(() => {
@@ -94,6 +101,10 @@ export const QuranPracticeView: React.FC<QuranPracticeViewProps> = ({
   const [showGrammarNotes, setShowGrammarNotes] = useState<boolean>(true);
   const [autoPlayingAyahKey, setAutoPlayingAyahKey] = useState<string | null>(null);
   const [activeWordHighlight, setActiveWordHighlight] = useState<string | null>(null);
+
+  // Sub-mode: 'surahs' (Quran Recitation & Ayahs) vs 'quiz' (Quran Quiz Vocabulary Retention)
+  const [activeQuranSubTab, setActiveQuranSubTab] = useState<'surahs' | 'quiz'>('surahs');
+  const srsWordCount = useMemo(() => Object.keys(wordSRS).length, [wordSRS]);
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -424,6 +435,19 @@ export const QuranPracticeView: React.FC<QuranPracticeViewProps> = ({
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
+            onClick={() => setActiveQuranSubTab((prev) => (prev === 'quiz' ? 'surahs' : 'quiz'))}
+            className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-all whitespace-nowrap cursor-pointer ${
+              activeQuranSubTab === 'quiz'
+                ? 'bg-amber-100 border-amber-300 text-amber-950 font-bold shadow-xs'
+                : 'bg-emerald-50 border-emerald-300 text-emerald-950 hover:bg-emerald-100'
+            }`}
+          >
+            <Brain className="w-4 h-4 text-emerald-700" />
+            <span>{activeQuranSubTab === 'quiz' ? 'সূরা তিলাওয়াত' : 'কুরআন কুইজ (৫ প্রশ্ন)'}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setShowPronunciation((p) => !p)}
             className={`min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-colors whitespace-nowrap cursor-pointer ${
               showPronunciation
@@ -461,8 +485,63 @@ export const QuranPracticeView: React.FC<QuranPracticeViewProps> = ({
         </div>
       </div>
 
-      {/* Suggested Short Surahs Shelf (Quick Access for Prayer Surahs) */}
-      <div className="bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-3xl p-6 md:p-8 shadow-sm border border-emerald-800/60 space-y-6">
+      {/* Quran Practice Mode Sub-tabs (Surahs vs Quiz) */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
+        <div className="flex items-center gap-1 p-1 bg-white rounded-xl shadow-xs">
+          <button
+            type="button"
+            onClick={() => setActiveQuranSubTab('surahs')}
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeQuranSubTab === 'surahs'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'text-slate-600 hover:text-emerald-900 hover:bg-slate-50'
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>১১৪টি সূরা ও আয়াত পাঠ</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveQuranSubTab('quiz')}
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeQuranSubTab === 'quiz'
+                ? 'bg-emerald-800 text-white shadow-xs'
+                : 'text-slate-600 hover:text-emerald-900 hover:bg-slate-50'
+            }`}
+          >
+            <Brain className="w-4 h-4 text-amber-500" />
+            <span>কুরআন কুইজ (Quran Quiz)</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900">
+              ৫ প্রশ্ন
+            </span>
+          </button>
+        </div>
+
+        <div className="text-xs text-slate-500 flex items-center gap-2 px-3 py-1">
+          <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>
+            {srsWordCount > 0
+              ? `wordSRS-এ অধীত ${toBnNum(srsWordCount)}টি শব্দের উপর ভিত্তি করে ৫টি প্রশ্ন`
+              : 'কুরআনিক শব্দভাণ্ডারের ধারণক্ষমতা যাচাই'}
+          </span>
+        </div>
+      </div>
+
+      {activeQuranSubTab === 'quiz' ? (
+        <QuranQuizSection
+          wordSRS={wordSRS}
+          onRateWord={onRateWord}
+          slowAudio={slowAudio}
+          speakingText={speakingText}
+          largeFont={largeFont}
+          onCloseQuiz={() => setActiveQuranSubTab('surahs')}
+          onNavigateTab={onNavigateTab}
+        />
+      ) : (
+        <>
+          {/* Suggested Short Surahs Shelf (Quick Access for Prayer Surahs) */}
+          <div className="bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-3xl p-6 md:p-8 shadow-sm border border-emerald-800/60 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
@@ -1489,6 +1568,8 @@ export const QuranPracticeView: React.FC<QuranPracticeViewProps> = ({
           <div />
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -602,6 +602,8 @@ export default function App() {
             largeFont={progress.largeFontMode}
             initialSurahNumber={targetSurahForPractice}
             onNavigateTab={(tab) => setActiveTab(tab as TabKey)}
+            wordSRS={progress.wordSRS}
+            onRateWord={handleRateWord}
           />
         )}
 
